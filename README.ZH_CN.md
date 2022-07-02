@@ -17,7 +17,7 @@
 import (
     "context"
     "github.com/Pacific73/gorm-cache/cache"
-    "github.com/go-redis/redis"
+    "gopkg.in/redis.v4"
 )
 
 func main() {

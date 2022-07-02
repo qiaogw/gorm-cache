@@ -3,7 +3,7 @@ package config
 import (
 	"sync"
 
-	"github.com/go-redis/redis"
+	"gopkg.in/redis.v4"
 )
 
 type RedisConfigMode int

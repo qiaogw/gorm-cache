@@ -6,7 +6,7 @@ import (
 
 	"github.com/Pacific73/gorm-cache/config"
 	"github.com/Pacific73/gorm-cache/util"
-	"github.com/go-redis/redis"
+	"gopkg.in/redis.v4"
 )
 
 type RedisLayer struct {
