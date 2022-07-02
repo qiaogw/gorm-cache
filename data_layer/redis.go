@@ -10,7 +10,7 @@ import (
 )
 
 type RedisLayer struct {
-	client    *redis.Client
+	client    redis.Cmdable
 	ttl       int64
 	logger    config.LoggerInterface
 	keyPrefix string

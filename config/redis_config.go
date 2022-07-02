@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/go-redis/redis"
 	"sync"
+
+	"github.com/go-redis/redis"
 )
 
 type RedisConfigMode int
@@ -16,12 +17,12 @@ type RedisConfig struct {
 	Mode RedisConfigMode
 
 	Options *redis.Options
-	Client *redis.Client
+	Client  redis.Cmdable
 
 	once sync.Once
 }
 
-func (c *RedisConfig) InitClient() *redis.Client {
+func (c *RedisConfig) InitClient() redis.Cmdable {
 	c.once.Do(func() {
 		if c.Mode == RedisConfigModeOptions {
 			c.Client = redis.NewClient(c.Options)
