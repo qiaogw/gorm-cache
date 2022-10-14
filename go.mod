@@ -11,6 +11,6 @@ require (
 	github.com/smartystreets/goconvey v1.7.2
 	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a // indirect
 	gopkg.in/redis.v4 v4.2.4
-	gorm.io/driver/mysql v1.3.3
-	gorm.io/gorm v1.23.4
+	gorm.io/driver/mysql v1.4.1
+	gorm.io/gorm v1.23.8
 )
