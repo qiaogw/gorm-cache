@@ -54,6 +54,7 @@ func main() {
 }
 ```
 
+
 There're mainly 5 kinds of operations in gorm (gorm function names in brackets):
 
 1. Query (First/Take/Last/Find/FindInBatches/FirstOrInit/FirstOrCreate/Count/Pluck)
