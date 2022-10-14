@@ -3,8 +3,8 @@ package cache
 import (
 	"fmt"
 
+	"github.com/go-redis/redis"
 	"github.com/qiaogw/gorm-cache/config"
-	"gopkg.in/redis.v4"
 )
 
 func NewGorm2Cache(cacheConfig *config.CacheConfig) (*Gorm2Cache, error) {
