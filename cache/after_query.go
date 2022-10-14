@@ -3,12 +3,12 @@ package cache
 import (
 	"encoding/json"
 	"errors"
+	"github.com/qiaogw/gorm-cache/config"
+	"github.com/qiaogw/gorm-cache/util"
+	"gorm.io/gorm"
 	"reflect"
 	"strings"
 	"sync"
-	"github.com/Pacific73/gorm-cache/config"
-	"github.com/Pacific73/gorm-cache/util"
-	"gorm.io/gorm"
 )
 
 func AfterQuery(cache *Gorm2Cache) func(db *gorm.DB) {

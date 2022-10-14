@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Pacific73/gorm-cache/config"
-	"github.com/Pacific73/gorm-cache/util"
+	"github.com/qiaogw/gorm-cache/config"
+	"github.com/qiaogw/gorm-cache/util"
 	redis "gopkg.in/redis.v4"
 )
 
