@@ -20,7 +20,7 @@ We provide 2 types of cache storage here:
 import (
     "context"
     "github.com/qiaogw/gorm-cache/cache"
-    "gopkg.in/redis.v4"
+    "github.com/go-redis/redis"
 )
 
 func main() {

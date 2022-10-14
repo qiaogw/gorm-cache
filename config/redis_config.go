@@ -17,7 +17,7 @@ type RedisConfig struct {
 	Mode RedisConfigMode
 
 	Options *redis.Options
-	Client  redis.Cmdable
+	Client  *redis.Client
 
 	once sync.Once
 }

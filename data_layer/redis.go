@@ -2,17 +2,15 @@ package data_layer
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/qiaogw/gorm-cache/config"
 	"github.com/qiaogw/gorm-cache/util"
-	redis "gopkg.in/redis.v4"
 )
 
 type RedisLayer struct {
-	client    redis.Cmdable
+	client    *redis.Client
 	ttl       int64
 	logger    config.LoggerInterface
 	keyPrefix string
@@ -79,32 +77,13 @@ func (r *RedisLayer) CleanCache(ctx context.Context) error {
 	return nil
 }
 
-func (r *RedisLayer) CmdBool(cmd *redis.Cmd) (bool, error) {
-	if cmd.Err() != nil {
-		return false, cmd.Err()
-	}
-	return toBool(cmd.Val())
-}
-
-func toBool(val interface{}) (bool, error) {
-	switch val := val.(type) {
-	case int64:
-		return val != 0, nil
-	case string:
-		return strconv.ParseBool(val)
-	default:
-		err := fmt.Errorf("redis: unexpected type=%T for Bool", val)
-		return false, err
-	}
-}
-
 func (r *RedisLayer) BatchKeyExist(ctx context.Context, keys []string) (bool, error) {
 	result := r.client.EvalSha(r.batchExistSha, keys)
 	if result.Err() != nil {
 		r.logger.CtxError(ctx, "[BatchKeyExist] eval script error: %v", result.Err())
 		return false, result.Err()
 	}
-	return r.CmdBool(result)
+	return result.Bool()
 }
 
 func (r *RedisLayer) KeyExists(ctx context.Context, key string) (bool, error) {
@@ -113,7 +92,7 @@ func (r *RedisLayer) KeyExists(ctx context.Context, key string) (bool, error) {
 		r.logger.CtxError(ctx, "[KeyExists] exists error: %v", result.Err())
 		return false, result.Err()
 	}
-	if result.Val() {
+	if result.Val() == 1 {
 		return true, nil
 	}
 	return false, nil
@@ -161,7 +140,7 @@ func (r *RedisLayer) BatchSetKeys(ctx context.Context, kvs []util.Kv) error {
 		}
 		return r.client.MSet(spreads...).Err()
 	}
-	_, err := r.client.Pipelined(func(pipeliner *redis.Pipeline) error {
+	_, err := r.client.Pipelined(func(pipeliner redis.Pipeliner) error {
 		for _, kv := range kvs {
 			result := pipeliner.Set(kv.Key, kv.Value, time.Duration(r.ttl)*time.Millisecond)
 			if result.Err() != nil {
