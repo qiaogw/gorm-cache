@@ -28,7 +28,7 @@ func NewRedisConfigWithOptions(options *redis.Options) *config.RedisConfig {
 	}
 }
 
-func NewRedisConfigWithClient(client redis.Cmdable) *config.RedisConfig {
+func NewRedisConfigWithClient(client *redis.Client) *config.RedisConfig {
 	return &config.RedisConfig{
 		Mode:   config.RedisConfigModeRaw,
 		Client: client,
