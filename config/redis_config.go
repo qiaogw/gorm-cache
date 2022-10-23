@@ -22,7 +22,7 @@ type RedisConfig struct {
 	once sync.Once
 }
 
-func (c *RedisConfig) InitClient() redis.Cmdable {
+func (c *RedisConfig) InitClient() *redis.Client {
 	c.once.Do(func() {
 		if c.Mode == RedisConfigModeOptions {
 			c.Client = redis.NewClient(c.Options)
