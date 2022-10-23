@@ -6,7 +6,6 @@
 
 # gorm-cache
 
-
 `gorm-cache` aims to provide a look-aside, almost-no-code-modification cache solution for gorm v2 users. It only applys to situations where database table has only one single primary key.
 
 We provide 2 types of cache storage here:
@@ -21,39 +20,44 @@ import (
     "context"
     "github.com/qiaogw/gorm-cache/cache"
     "github.com/go-redis/redis"
+    cacheConfig "github.com/Pacific73/gorm-cache/config"
 )
 
 func main() {
     dsn := "user:pass@tcp(127.0.0.1:3306)/database_name?charset=utf8mb4"
     db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-    
+
     redisClient := redis.NewClient(&redis.Options{
-        Addr: "localhost:6379",    
+        Addr: "localhost:6379",
+        Password: "psw",
     })
-    
-    cache, _ := cache.NewGorm2Cache(&config.CacheConfig{
+
+    cache, err := cache.NewGorm2Cache(&cacheConfig.CacheConfig{
         CacheLevel:           config.CacheLevelAll,
         CacheStorage:         config.CacheStorageRedis,
         RedisConfig:          cache.NewRedisConfigWithClient(redisClient),
         InvalidateWhenUpdate: true, // when you create/update/delete objects, invalidate cache
         CacheTTL:             5000, // 5000 ms
-        CacheMaxItemCnt:      5,    // if length of objects retrieved one single time 
+        CacheMaxItemCnt:      5,    // if length of objects retrieved one single time
                                     // exceeds this number, then don't cache
     })
-    // More options in `config.config.go`
-    db.Plugin(cache)    // use gorm plugin
-    // cache.AttachToDB(db)
-
+    if err != nil {
+		logx.Errorf("setup all cache error: %v", err)
+	} else {
+		err = db.Use(caches) // use gorm plugin
+		if err != nil {
+			logx.Errorf("setup all cache error: %v", err, caches.Name())
+		}
+	}
     var users []User
-    
+
     db.Where("value > ?", 123).Find(&users) // search cache not hit, objects cached
     db.Where("value > ?", 123).Find(&users) // search cache hit
-    
+
     db.Where("id IN (?)", []int{1, 2, 3}).Find(&users) // primary key cache not hit, users cached
     db.Where("id IN (?)", []int{1, 3}).Find(&users) // primary key cache hit
 }
 ```
-
 
 There're mainly 5 kinds of operations in gorm (gorm function names in brackets):
 

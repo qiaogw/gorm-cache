@@ -4,12 +4,12 @@
 
 [English Version](./README.md) | [中文版本](./README.ZH_CN.md)
 
-`gorm-cache` 旨在为gorm v2用户提供一个即插即用的旁路缓存解决方案。本缓存只适用于数据库表单主键时的场景。
+`gorm-cache` 旨在为 gorm v2 用户提供一个即插即用的旁路缓存解决方案。本缓存只适用于数据库表单主键时的场景。
 
-我们提供2种存储介质：
+我们提供 2 种存储介质：
 
 1. 内存 (所有数据存储在单服务器的内存中)
-2. Redis (所有数据存储在redis中，如果你有多个实例使用本缓存，那么他们不共享redis存储空间)
+2. Redis (所有数据存储在 redis 中，如果你有多个实例使用本缓存，那么他们不共享 redis 存储空间)
 
 ## 使用说明
 
@@ -18,40 +18,46 @@ import (
     "context"
     "github.com/qiaogw/gorm-cache/cache"
     "github.com/go-redis/redis"
+    cacheConfig "github.com/Pacific73/gorm-cache/config"
 )
 
 func main() {
     dsn := "user:pass@tcp(127.0.0.1:3306)/database_name?charset=utf8mb4"
     db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-    
+
     redisClient := redis.NewClient(&redis.Options{
-        Addr: "localhost:6379",    
+        Addr: "localhost:6379",
+        Password: "psw",
     })
-    
-    cache, _ := cache.NewGorm2Cache(&config.CacheConfig{
+
+    cache, err := cache.NewGorm2Cache(&cacheConfig.CacheConfig{
         CacheLevel:           config.CacheLevelAll,
         CacheStorage:         config.CacheStorageRedis,
         RedisConfig:          cache.NewRedisConfigWithClient(redisClient),
         InvalidateWhenUpdate: true, // when you create/update/delete objects, invalidate cache
         CacheTTL:             5000, // 5000 ms
-        CacheMaxItemCnt:      5,    // if length of objects retrieved one single time 
+        CacheMaxItemCnt:      5,    // if length of objects retrieved one single time
                                     // exceeds this number, then don't cache
     })
-    // More options in `config.config.go`
-    db.Plugin(cache)    // use gorm plugin
-    // cache.AttachToDB(db)
-
+    if err != nil {
+		logx.Errorf("setup all cache error: %v", err)
+	} else {
+		err = db.Use(caches) // use gorm plugin
+		if err != nil {
+			logx.Errorf("setup all cache error: %v", err, caches.Name())
+		}
+	}
     var users []User
-    
+
     db.Where("value > ?", 123).Find(&users) // search cache not hit, objects cached
     db.Where("value > ?", 123).Find(&users) // search cache hit
-    
+
     db.Where("id IN (?)", []int{1, 2, 3}).Find(&users) // primary key cache not hit, users cached
     db.Where("id IN (?)", []int{1, 3}).Find(&users) // primary key cache hit
 }
 ```
 
-在gorm中主要有5种操作（括号中是gorm中对应函数名）:
+在 gorm 中主要有 5 种操作（括号中是 gorm 中对应函数名）:
 
 1. Query (First/Take/Last/Find/FindInBatches/FirstOrInit/FirstOrCreate/Count/Pluck)
 2. Create (Create/CreateInBatches/Save)
@@ -59,4 +65,4 @@ func main() {
 4. Update (Update/Updates/UpdateColumn/UpdateColumns/Save)
 5. Row (Row/Rows/Scan)
 
-我们不支持Row操作的缓存。
+我们不支持 Row 操作的缓存。
